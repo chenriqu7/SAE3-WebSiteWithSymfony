@@ -1,0 +1,54 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.color1 {
+    background-color: #DDD5CBFF;
+}
+
+.color2 {
+    background-color: #178DADFF;
+}
+
+.color3 {
+    background-color: #40556AFF;
+}
+
+.color4 {
+    background-color: #182B44FF;
+}
+
+.color5 {
+    background-color: #D9D9D9;
+}
+
+.color6 {
+    background-color: #E4E4E4;
+}
+
+
+/* Creation of the scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 1em;
+
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

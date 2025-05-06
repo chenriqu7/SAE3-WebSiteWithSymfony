@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}SmartCampus{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+    {% block stylesheets %}
+    {% endblock %}
+
+    {% block javascripts %}
+        <script src="https://kit.fontawesome.com/bfa5a160f6.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+</head>
+<body>
+
+<div class="flex flex-col h-screen bg-gray-50">
+
+    <!-- Main Layout -->
+    <div class="flex flex-1 overflow-hidden place-content-center">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:w-64 md:flex-col bg-gray-800 text-white">
+            <div class="flex flex-col flex-grow pt-5 overflow-y-auto">
+                <!-- Sidebar Header -->
+                <div class="flex justify-center flex-shrink-0 px-4 mb-6">
+                    <p class="text-xl font-semibold text-gray-300">{% block page_title %}SmartCampus{% endblock %}</p>
+                </div>
+
+                <!-- Divider -->
+                <hr class="border-gray-600 mx-4" />
+                <!-- Additional Section -->
+
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                <div class="flex space-x-2 ml-5 mt-6">
+                    <i class="fas fa-user-circle fa-2x"></i>
+                    <p class="text-lg font-semibold text-gray-300">{{ app.user.getFullname }}</p>
+                    <a href="{{ path('app_logout') }}">
+                        <i class="fa-solid fa-right-from-bracket text-gray-300 pt-2"></i>
+                    </a>
+                </div>
+                {% else %}
+                <div class="flex space-x-2 ml-5 mt-6">
+                    <a href="{{ path('app_login') }}">
+                        <p class="text-lg font-semibold text-gray-300">Se connecter <i class="fa-solid fa-right-from-bracket text-gray-300 pt-2"></i></p>
+                    </a>
+                </div>
+                {% endif %}
+
+
+                <!-- Navigation Links -->
+                <nav class="flex-1 px-4 mt-6 space-y-4">
+                    <hr class="border-gray-600 " />
+
+                    <a href="{{ path('app_dashboard_main') }}" class="nav-link space-x-2 flex items-center px-4 py-3 rounded-lg hover:bg-gray-700 transition duration-150 ease-in-out text-gray-300 hover:text-white">
+                        <i class="fa fa-home" aria-hidden="true"></i><span>Dashboard</span>
+                    </a>
+
+                    {% if is_granted('ROLE_MISSION_MANAGER') %}
+                    <a href="{{ path('app_room') }}" class="nav-link space-x-2 flex items-center px-4 py-3 rounded-lg hover:bg-gray-700 transition duration-150 ease-in-out text-gray-300 hover:text-white">
+                        <i class="fa fa-building-o" aria-hidden="true"></i><span>Salles</span>
+                    </a>
+                    <a href="{{ path('app_acquisition_system') }}" class="nav-link space-x-2 flex items-center px-4 py-3 rounded-lg hover:bg-gray-700 transition duration-150 ease-in-out text-gray-300 hover:text-white">
+                        <i class="fa fa-microchip" aria-hidden="true"></i><span>Systèmes d'acquisition</span>
+                    </a>
+                    {% endif %}
+
+                    {% if is_granted('ROLE_TECHNICIAN') %}
+                    <a href="{{ path('app_management') }}" class="nav-link space-x-2 flex items-center px-4 py-3 rounded-lg hover:bg-gray-700 transition duration-150 ease-in-out text-gray-300 hover:text-white">
+                        <i class="fa-solid fa-clipboard" aria-hidden="true"></i><span>Gestion</span>
+                    </a>
+                    {% endif %}
+
+                </nav>
+
+                <!-- Bottom Divider -->
+                <hr class="border-gray-600 mx-4 my-6" />
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        {% block body %}
+        {% endblock %}
+    </div>
+</div>
+
+</body>
+</html>

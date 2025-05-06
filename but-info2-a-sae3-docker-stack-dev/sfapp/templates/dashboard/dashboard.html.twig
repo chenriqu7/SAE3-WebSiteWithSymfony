@@ -1,0 +1,173 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block importmap %}
+    {{ importmap('dashboard') }}
+{% endblock %}
+
+{% block body %}
+    <div class="flex flex-col flex-1 w-full py-8 bg-gray-100 overflow-auto">
+        <div class="flex flex-row pb-4 ml-6 space-y-2 border-b-2">
+            <h2 class="text-3xl font-semibold text-gray-800 text-left mr-auto">Dashboard</h2>
+        </div>
+
+        <div id="warningListTitle" class="hidden flex flex-row pt-4 pb-4 ml-6 space-y-2 border-b-2">
+            {% if is_granted('ROLE_TECHNICIAN') %}
+                <h2 class="text-3xl font-semibold text-gray-800 text-left mr-2">Systèmes d'Acquisitions en alerte</h2>
+            {% else %}
+                <h2 class="text-3xl font-semibold text-gray-800 text-left mr-2">Salles en alerte</h2>
+            {% endif %}
+        </div>
+
+        <div class="ml-6 mr-6 mt-6">
+            <div id="asWarningListContainer" class="pb-6 hidden">
+                <div id="asWarningList" class="flex flex-nowrap justify-start w-full overflow-x-auto p-4 gap-4">
+                    <div id="warningDiv" class="p-4 w-full sm:w-1/2 lg:w-1/4 h-52 bg-gray-50 rounded-lg border border-red-600 shadow-md shadow-red-600 hover:shadow-lg hover:bg-gray-200 transition duration-300 cursor-pointer flex flex-col justify-between flex-shrink-0 relative group">
+                        <a href="dashboard/D009">
+                            <div class="z-20 absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 text-white text-sm px-4 py-2 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                Cliquez pour afficher les données de la salle
+                            </div>
+                        </a>
+                        <p class="text-xl font-semibold text-center text-gray-700">SA-1</p>
+
+                        <!-- Section état de la salle -->
+                        <div class="flex items-center justify-center mb-4">
+                            <p class="text-gray-600 text-center">
+                                <strong>D009</strong><br>
+                                <span class="text-sm text-gray-500">Non résolu</span><br>
+                                <i title="Remontée : 2025-01-07 14:41:20" class="fa-solid fa-circle-info pr-1"></i><span id="warning_text" class="text-sm text-gray-500">Capteur de CO2 défaillant</span><br>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white shadow-lg rounded-lg p-4 transition-all hover:shadow-2xl">
+                    <p class="text-sm font-medium text-gray-700">Salle la plus chaude</p>
+                    <p class="text-xl font-semibold text-gray-500" id="hottestRoomValue">Chargement...</p>
+                    <p class="text-xs text-gray-500">Dernière remontée : <span id="dateHot">Chargement...</span></p>
+                </div>
+
+                <div class="bg-white shadow-lg rounded-lg p-4 transition-all hover:shadow-2xl">
+                    <p class="text-sm font-medium text-gray-700">Salle la plus froide</p>
+                    <p class="text-xl font-semibold text-gray-500" id="coldestRoom">Chargement...</p>
+                    <p class="text-xs text-gray-500">Dernière remontée : <span id="dateCold">Chargement...</span></p>
+                </div>
+
+                <div class="bg-white shadow-lg rounded-lg p-4 transition-all hover:shadow-2xl">
+                    <p class="text-sm font-medium text-gray-700">Température moyenne</p>
+                    <p class="text-xl font-semibold text-gray-500" id="averageTemp">Chargement...</p>
+                </div>
+
+                <div class="bg-white shadow-lg rounded-lg p-4 transition-all hover:shadow-2xl">
+                    <p class="text-sm font-medium text-gray-700">Humidité moyenne</p>
+                    <p class="text-xl font-semibold text-gray-500" id="averageHum">Chargement...</p>
+                </div>
+
+                <div class="bg-white shadow-lg rounded-lg p-4 transition-all hover:shadow-2xl">
+                    <p class="text-sm font-medium text-gray-700">Taux de CO2 moyen</p>
+                    <p class="text-xl font-semibold text-gray-500" id="averageCO2">Chargement...</p>
+                </div>
+            </div>
+
+            <div class="flex flex-row items-center pb-4 ml-6 space-y-2 border-b-2 cursor-pointer" id="as_installed_list">
+                {% if is_granted('ROLE_TECHNICIAN') %}
+                    <span id="userRole" style="display: none;">Tech</span>
+                    <h2 class="text-3xl font-semibold text-gray-800 text-left mr-2">Systèmes d'Acquisitions installés</h2>
+                    <p class="text-gray-600 pr-4">({{ acquisitionsInstalled|length }} SA installés)</p><i id="btnListInstalled" class="fa-solid fa-play gray-800 rotate-90"></i>
+                {% else %}
+                    <span id="userRole" style="display: none;">Manager</span>
+                    <h2 class="text-3xl font-semibold text-gray-800 text-left mr-2">Salles avec un Système d'Acquisition installé</h2>
+                    <p class="text-gray-600 pr-4">({{ acquisitionsInstalled|length }} salles)</p><i id="btnListInstalled" class="fa-solid fa-play gray-800 rotate-90"></i>
+                {% endif %}
+            </div>
+
+            <div id="asInstalledList" class="flex-wrap justify-center w-full p-6 gap-4 flex">
+                {% if acquisitionsInstalled is empty %}
+                    <div class="w-full p-6 bg-gray-100 flex justify-center items-center">
+                        <p class="text-center text-gray-600">Aucun SA n'a été trouvé</p>
+                    </div>
+                {% else %}
+                    {% if is_granted('ROLE_TECHNICIAN') %}
+                        {% set sortedAcquisitions = acquisitionsInstalled|sort((a, b) =>
+                            a.reference <=>
+                            b.reference
+                            ) %}
+                    {% else %}
+                        {% set sortedAcquisitions = acquisitionsInstalled|sort((a, b) =>
+                            (a.getRoomEntity ? (a.getRoomEntity.number|slice(1, 2) ~ a.getRoomEntity.number|slice(3)) : '') <=>
+                            (b.getRoomEntity ? (b.getRoomEntity.number|slice(1, 2) ~ b.getRoomEntity.number|slice(3)) : '')
+                            ) %}
+                    {% endif %}
+                    {% for acquisition in sortedAcquisitions %}
+
+                        <div class="relative p-4 w-full sm:w-1/2 lg:w-1/4 h-52 bg-gray-50 rounded-lg border border-gray-300 shadow-md hover:shadow-lg hover:bg-gray-200 transition duration-300 cursor-pointer flex flex-col justify-between group" data-reference="{{ acquisition.reference }}">
+                            {% if is_granted('ROLE_TECHNICIAN') %}
+                                <p class="text-xl font-semibold text-center text-gray-700">SA-{{ acquisition.reference }}</p>
+                            {% else %}
+                                <p class="text-xl font-semibold text-center text-gray-700">{{ acquisition.getRoomEntity.number }}</p>
+                            {% endif %}
+                            <a href="{{ path('app_dashboard', { 'number': acquisition.getRoomEntity.number }) }}">
+
+
+                                <div class="z-20 absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 text-white text-sm px-4 py-2 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    Cliquez pour afficher les données précises
+                                </div>
+
+                                <!-- Section état de la salle -->
+                                <div class="flex left-0 items-center justify-center absolute top-16 w-full ">
+                                    {% if is_granted('ROLE_TECHNICIAN') %}
+
+                                        <p class="text-gray-600 text-center">
+                                            <strong>{{ acquisition.getRoomEntity ? "En " ~ acquisition.getRoomEntity.number : "Pas de Salle" }}</strong><br>
+                                            <span class="text-sm text-gray-500">{{ acquisition.getState.value }}</span>
+                                        </p>
+                                    {% else %}
+                                        <p class="text-gray-600 text-center">
+                                            <strong>SA-{{ acquisition.reference }}</strong><br>
+                                            <span class="text-sm text-gray-500">{{ acquisition.getState.value }}</span>
+                                        </p>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Logo de warning en haut à gauche de la carte -->
+                                <div class="absolute z-10    top-3 left-4 flex items-center">
+                                    <i id="warningLogo" class="fa-solid fa-triangle-exclamation text-red-500 text-2xl hidden"></i>
+                                </div>
+
+                                <!-- Message d'avertissement sous l'état de la salle -->
+                                <div class="flex flex-col items-center mb-2">
+                                    <p id="warningMessage" class="text-xs text-red-500 mt-2 text-center hidden">Message d'avertissement...</p>
+                                </div>
+
+                                <!-- Données de température, CO2 et humidité -->
+                                <div class="flex justify-between items-center mt-2 space-x-4">
+                                    <!-- Température -->
+                                    <div class="flex justify-start items-center w-1/3">
+                                        <i class="fa-solid fa-thermometer-half text-red-500 mr-2"></i>
+                                        <span id="eachRoomTemp" class="text-gray-600">...</span>
+                                    </div>
+
+                                    <!-- Humidité -->
+                                    <div class="flex justify-center items-center w-1/3">
+                                        <i class="fa-solid fa-droplet text-blue-500 mr-2"></i>
+                                        <span id="eachRoomHum" class="text-gray-600">...</span>
+                                    </div>
+
+                                    <!-- CO2 -->
+                                    <div class="flex justify-end items-center w-1/3">
+                                        <i class="fa-solid fa-cloud text-blue-500 mr-2"></i>
+                                        <span id="eachRoomCO2" class="text-gray-600">...</span>
+                                    </div>
+                                </div>
+
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

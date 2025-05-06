@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Management{% endblock %}
+
+
+{% block importmap %}
+
+    {{ importmap('management') }}
+
+{% endblock %}
+
+
+{% block body %}
+
+    {{ include('/management/modal_install_AS.html.twig') }}
+
+    <div class="flex flex-col flex-1 w-full py-8 bg-gray-100 overflow-auto" id="main-content" style="perspective: 800px;">
+
+        <!-- Header -->
+        <div class="flex flex-row items-center pb-4 ml-6 space-y-2 border-b-2 cursor-pointer" id="as_install_list">
+            <h2 class="text-3xl font-semibold text-gray-800 text-left mr-2">Systèmes d'Acquisitions à installer</h2>
+            <p class="text-gray-600 pr-4">({{ acquisitionsToInstall|length }} SA à installer)</p><i id="btnList" class="fa-solid fa-play gray-800 rotate-90"></i>
+        </div>
+
+        <!-- List of AS to install-->
+        <div id="asList" class="flex flex-wrap justify-center w-full p-6 gap-4">
+            {% if acquisitionsToInstall is empty %}
+                <div class="w-full p-6 bg-gray-100 flex justify-center items-center">
+                    <p class="text-center text-gray-600">Aucun SA n'a été trouvé</p>
+                </div>
+            {% else %}
+                {% for acquisition in acquisitionsToInstall %}
+                    <div class="p-4 w-1/4 h-52 bg-gray-50 rounded-lg border border-{{ acquisition.getState.getColor }} shadow-md shadow-{{ acquisition.getState.getColor }} hover:shadow-md hover:bg-gray-200 transition duration-300 cursor-pointer as flex flex-col justify-between">
+                        <p class="text-xl font-semibold text-center text-gray-700">SA-{{ acquisition.reference }}</p>
+                        <div class="flex items-center justify-center">
+                            <p class="text-gray-600 text-center"><strong>{{ acquisition.getRoomEntity ? "En " ~ acquisition.getRoomEntity.number : "Pas de Salle" }}</strong><br>{{ acquisition.getState.value }}</p>
+                        </div>
+                        <div class="flex justify-end justify-between mt-2">
+                            <a class="install_AS group/edit relative flex items-center whitespace-nowrap rounded-full py-1 p-3 text-sm text-slate-500 transition hover:bg-slate-300">
+                                <button type="button" id="install" class="font-semibold transition group-hover/edit:text-gray-700">Installer</button>
+                            </a>
+                            <a href="{{ path('app_dashboard', { 'number': acquisition.getRoomEntity.number }) }}" class="details_room group/edit relative flex items-center whitespace-nowrap rounded-full py-1 pl-4 pr-3 text-sm text-slate-500 transition hover:bg-slate-300">
+                                <span class="font-semibold transition group-hover/edit:text-gray-700">Détails</span>
+                                <svg class="mt-px h-5 w-5 text-slate-400 transition group-hover/edit:translate-x-0.5 group-hover/edit:text-slate-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <br>
+
+        <div class="flex flex-row items-center pb-4 ml-6 space-y-2 border-b-2 cursor-pointer" id="as_installed_list">
+            <h2 class="text-3xl font-semibold text-gray-800 text-left mr-2">Systèmes d'Acquisitions installés</h2>
+            <p class="text-gray-600 pr-4">({{ acquisitionsInstalled|length }} SA installés)</p><i id="btnListInstalled" class="fa-solid fa-play gray-800 rotate-0"></i>
+        </div>
+
+        <!-- List of AS installed-->
+        <div id="asInstalledList" class="hidden flex-wrap justify-center w-full p-6 gap-4">
+            {% if acquisitionsInstalled is empty %}
+                <div class="w-full p-6 bg-gray-100 flex justify-center items-center">
+                    <p class="text-center text-gray-600">Aucun SA n'a été trouvé</p>
+                </div>
+            {% else %}
+                {% for acquisition in acquisitionsInstalled %}
+                    <div class="p-4 w-1/4 h-52 bg-gray-50 rounded-lg border border-{{ acquisition.getState.getColor }} shadow-md shadow-{{ acquisition.getState.getColor }} hover:shadow-md hover:bg-gray-200 transition duration-300 cursor-pointer as flex flex-col justify-between">
+                        <p class="text-xl font-semibold text-center text-gray-700">SA-{{ acquisition.reference }}</p>
+                        <div class="flex items-center justify-center">
+                            <p class="text-gray-600 text-center"><strong>{{ acquisition.getRoomEntity ? "En " ~ acquisition.getRoomEntity.number : "Pas de Salle" }}</strong><br>{{ acquisition.getState.value }}</p>
+                        </div>
+                        <div class="flex justify-end justify-between mt-2"></div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+    </div>
+
+{% endblock %}

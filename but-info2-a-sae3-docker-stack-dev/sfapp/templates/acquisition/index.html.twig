@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Acquisition{% endblock %}
+
+
+{% block importmap %}
+
+    {{ importmap('acquisition') }}
+
+{% endblock %}
+
+
+{% block body %}
+
+    {{ include('/acquisition/add_acquisition.html.twig', {form: form}) }}
+
+    <div class="flex flex-col flex-1 w-full py-8 bg-gray-100" id="main-content" style="perspective: 800px;">
+
+        <!-- Header -->
+        <div class="flex flex-row pb-4 ml-6 space-y-2 border-b-2">
+            <h2 class="text-3xl font-semibold text-gray-800 text-left mr-auto">Système d'Acquisition</h2>
+            <button id="add_AS"
+                    class="text-gray-700 color6 hover:bg-slate-500 focus:ring-4 font-medium rounded-lg text-sm py-2 px-5 mr-8 focus:outline-none text-center shadow-md transition duration-200">
+                Ajouter un SA
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex flex-row justify-between pb-1 py-4 mx-6 space-y-2 cursor-pointer">
+            <div class="flex flex-row items-center pb-4 space-y-2" id="filters_room">
+                <h3 class="text-3xl font-semibold text-gray-800 text-left mr-2">Filtres</h3>
+                <i class="fa-solid fa-play gray-800 rotate-0 py-1 pl-1" id="btnFilters"></i>
+            </div>
+
+            <div class="flex flex-row items-center ml-6 space-y-2">
+                <input id="searchBar" class="w-1/5 min-w-[300px] p-3 px-6 rounded-full text-base border-none outline-none" type="search" placeholder="Rechercher un SA ..."/>
+            </div>
+        </div>
+        <div id="filters" class="hidden flex-wrap justify-center w-full p-6 gap-4 border-b-2">
+            <p class="py-2">Etat :</p>
+            <select name="stateFilter" id="stateFilter" class="whitespace-nowrap rounded-full py-1 pl-4 pr-3 text-sm text-slate-500 transition hover:bg-slate-300">
+                <option value="" class="hover:bg-white-500">...</option>
+                {% set states = [
+                    'En stock',
+                    'En attente d\'installation',
+                    'Installé',
+                    'En attente de désinstallation'
+                ] %}
+                {% for state in states %}
+                    <option value="{{ state }}" class="bg-white-500">{{ state }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="button" id="clearFilters" class="text-gray-700 color6 hover:bg-slate-500 focus:ring-4 font-medium rounded-lg text-sm py-2 px-5 mr-8 focus:outline-none text-center shadow-md transition duration-200">Réinitialiser les filtres</button>
+        </div>
+
+        <!-- List of AS -->
+        <div class="flex flex-wrap justify-center w-full p-6 gap-4 overflow-auto" id="acquisitions-container">
+            <!-- acquisition.js will populate this div -->
+        </div>
+
+    </div>
+
+{% endblock %}

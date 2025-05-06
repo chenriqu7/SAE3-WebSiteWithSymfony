@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Erreur{% endblock %}
+
+{% block body %}
+    <div class="flex flex-col flex-1 w-full py-8 bg-gray-100">
+
+        <div class="flex justify-center items-center min-h-screen bg-gray-100">
+            <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md text-center">
+                <h1 class="text-4xl font-bold text-red-600 mb-4">Oups ! Une erreur est survenue</h1>
+                <p class="text-lg text-gray-700">Nous sommes désolés, une erreur s'est produite. Si le problème persiste, merci de contacter l'administrateur du site.</p>
+                <a href="{{ path('app_dashboard_main') }}" class="mt-4 text-blue-600 hover:text-blue-800">Retour à l'accueil</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
